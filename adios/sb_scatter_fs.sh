@@ -5,7 +5,7 @@
 #SBATCH --output=myJob.out           # standard output file
 #SBATCH --account=IscrC_HOPE 
 #SBATCH --partition=g100_usr_prod 
-#SBATCH --time=00:05:00
+#SBATCH --time=00:20:00
 
 
 #
