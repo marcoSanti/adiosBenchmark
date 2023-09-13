@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <adios2.h>
 #include <string>
+#include <iostream>
+#include <exception>
 
 static char fmt[] = "file%d.bp";
 static char buf[] = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -28,6 +30,8 @@ static inline double diffmsec(const struct timeval a,
 
 int main(int argc, char *argv[])
 {
+	int nfile, startfile;
+	size_t file_size;
 	if (argc != 4)
 	{
 		fprintf(stderr, "use: %s nfile start_file file_size\n", argv[0]);
@@ -36,15 +40,16 @@ int main(int argc, char *argv[])
 	struct timeval before, after;
 
 	gettimeofday(&before, NULL);
-	int nfile = strtol(argv[1], NULL, 10);
-	int startfile = strtol(argv[2], NULL, 10);
-	size_t file_size = strtol(argv[3], NULL, 10);
+	nfile = strtol(argv[1], NULL, 10);
+	startfile = strtol(argv[2], NULL, 10);
+	file_size = strtol(argv[3], NULL, 10);
+
 	char filename[128];
-	for (int i = 0 + startfile; i < nfile; ++i)
-	{
+	for (int i=0+startfile;i<(nfile + startfile); ++i){
 		sprintf(filename, fmt, i);
 		std::string filenameString(filename);
-		adios2::fstream istream(filenameString, adios2::fstream::in);
+//		std::cout << "Reading file: " << filename<<std::endl;
+		adios2::fstream istream(filename, adios2::fstream::in);
 
 		for (adios2::fstep iStep; adios2::getstep(istream, iStep);){
                    std::string msg = istream.read<std::string>("data").front();
