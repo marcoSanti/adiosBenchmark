@@ -44,12 +44,13 @@ int main(int argc, char *argv[])
     int start_file = strtol(argv[3], NULL, 10);
     char filename[128];
 
-    for (int i = 0 + start_file ; i < nfile; ++i)
+    for (int i = 0; i < nfile; ++i)
     {
-        sprintf(filename, fmt, i);
+        sprintf(filename, fmt, i+start_file);
         std::string filenameString = std::string(filename);
 
         adios2::fstream oStream(filenameString, adios2::fstream::out);
+      //	std::cout << "Writing file: " << filenameString <<std::endl;
         std::string msg(size, 'a');
         oStream.write<std::string>("data", msg );
 
@@ -63,3 +64,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
