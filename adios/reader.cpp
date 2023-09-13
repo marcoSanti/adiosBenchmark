@@ -10,27 +10,7 @@
 static char fmt[] = "file%d.bp";
 static char buf[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-const adios2::Dims start{0, 0};
 
-
-static inline void readdata(adios2::fstream* istream, size_t size)
-{
-	size_t len = 1024 * 1024;
-	char *buf2 = (char *)malloc(size);
-	if (buf2 == NULL)
-	{
-		fprintf(stderr, "readdata malloc buf2 error\n");
-		exit(-1);
-	}
-
-
-	adios2::fstep iStep;
-	while(adios2::getstep(*istream, iStep)){
-		istream->read<char>("data",buf2);
-	}
-
-	
-}
 
 static inline double diffmsec(const struct timeval a,
 							  const struct timeval b)
@@ -60,15 +40,16 @@ int main(int argc, char *argv[])
 	int startfile = strtol(argv[2], NULL, 10);
 	size_t file_size = strtol(argv[3], NULL, 10);
 	char filename[128];
-	for (int i = 0 + startfile; i < (nfile + startfile); ++i)
+	for (int i = 0 + startfile; i < nfile; ++i)
 	{
 		sprintf(filename, fmt, i);
 		std::string filenameString(filename);
-		adios2::fstream* istream = new adios2::fstream(filenameString, adios2::fstream::in);
+		adios2::fstream istream(filenameString, adios2::fstream::in);
 
-		readdata(istream, file_size);
-		
-		delete istream;
+		for (adios2::fstep iStep; adios2::getstep(istream, iStep);){
+                   std::string msg = istream.read<std::string>("data").front();
+                }
+	      
 	}
 
 	gettimeofday(&after, NULL);
