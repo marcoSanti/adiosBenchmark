@@ -1,13 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <adios2.h>
-
+#include <string>
 
 static char fmt[] = "file%d.bp";
-static char buf[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+
 
 static inline double diffmsec(const struct timeval a,
                               const struct timeval b)
@@ -23,22 +20,11 @@ static inline double diffmsec(const struct timeval a,
     return ((double)(sec * 1000) + ((double)usec) / 1000.0);
 }
 
-static inline void writedata(adios2::fstream *oStream, size_t size)
-{
-    size_t len = 1024 * 1024;
-    size_t sz = size / len;
-    size_t r = size % len;
-    char *buf2 = (char *)malloc(size);
-
-    for (size_t i = 0; i < sz; ++i)
-        oStream->write<char>("data",buf2+1*len);
-
-    free(buf2);
-}
 
 int main(int argc, char *argv[])
 {
-    if (argc != 4)
+
+     if (argc != 4)
     {
         fprintf(stderr, "use: %s size-in-byte num_files start_file\n", argv[0]);
         return -1;
@@ -58,16 +44,17 @@ int main(int argc, char *argv[])
     int start_file = strtol(argv[3], NULL, 10);
     char filename[128];
 
-    for (int i = 0; i < nfile; ++i)
+    for (int i = 0 + start_file ; i < nfile; ++i)
     {
-        sprintf(filename, fmt, i + start_file);
+        sprintf(filename, fmt, i);
         std::string filenameString = std::string(filename);
 
-        adios2::fstream *oStream = new adios2::fstream(filenameString, adios2::fstream::out);
+        adios2::fstream oStream(filenameString, adios2::fstream::out);
+        std::string msg(size, 'a');
+        oStream.write<std::string>("data", msg );
 
-        writedata(oStream, size);
-
-        delete oStream;
+        oStream.close();
+      
     }
 
     gettimeofday(&after, NULL);
